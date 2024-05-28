@@ -3,19 +3,148 @@
 
  Source Server         : LocalHost
  Source Server Type    : MariaDB
- Source Server Version : 100523
- Source Host           : localhost:3366
+ Source Server Version : 100339
+ Source Host           : 127.0.0.1:3366
  Source Schema         : db_ecommerce
 
  Target Server Type    : MariaDB
- Target Server Version : 100523
+ Target Server Version : 100339
  File Encoding         : 65001
 
- Date: 01/04/2024 13:56:36
+ Date: 28/05/2024 15:47:07
 */
 
-SET NAMES utf8;
+SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
+
+-- ----------------------------
+-- Table structure for address
+-- ----------------------------
+DROP TABLE IF EXISTS `address`;
+CREATE TABLE `address` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `city` varchar(255) DEFAULT NULL,
+  `country` varchar(255) DEFAULT NULL,
+  `state` varchar(255) DEFAULT NULL,
+  `street` varchar(255) DEFAULT NULL,
+  `zip_code` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+-- ----------------------------
+-- Records of address
+-- ----------------------------
+BEGIN;
+INSERT INTO `address` VALUES (1, 'sfdsf', 'Brazil', 'Acre', 'fsfsf', '19111');
+INSERT INTO `address` VALUES (2, 'afasa', 'Canada', 'Alberta', 'afasa', 'afasa');
+INSERT INTO `address` VALUES (3, 'manitoba', 'Canada', 'Manitoba', 'olivares', '56356');
+INSERT INTO `address` VALUES (4, 'manitoba', 'Canada', 'Manitoba', 'olivares', '56356');
+COMMIT;
+
+-- ----------------------------
+-- Table structure for country
+-- ----------------------------
+DROP TABLE IF EXISTS `country`;
+CREATE TABLE `country` (
+  `id` smallint(5) unsigned NOT NULL,
+  `code` varchar(2) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+-- ----------------------------
+-- Records of country
+-- ----------------------------
+BEGIN;
+INSERT INTO `country` VALUES (1, 'BR', 'Brazil');
+INSERT INTO `country` VALUES (2, 'CA', 'Canada');
+INSERT INTO `country` VALUES (3, 'DE', 'Germany');
+INSERT INTO `country` VALUES (4, 'IN', 'India');
+INSERT INTO `country` VALUES (5, 'TR', 'Turkey');
+INSERT INTO `country` VALUES (6, 'US', 'United States');
+INSERT INTO `country` VALUES (7, 'MX', 'México');
+COMMIT;
+
+-- ----------------------------
+-- Table structure for customer
+-- ----------------------------
+DROP TABLE IF EXISTS `customer`;
+CREATE TABLE `customer` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `first_name` varchar(255) DEFAULT NULL,
+  `last_name` varchar(255) DEFAULT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+-- ----------------------------
+-- Records of customer
+-- ----------------------------
+BEGIN;
+INSERT INTO `customer` VALUES (1, 'afasa', 'afasa', 'afasa@test.com');
+INSERT INTO `customer` VALUES (2, 'susan', 'eriksson', 'susan.eriksson@gmail.com');
+COMMIT;
+
+-- ----------------------------
+-- Table structure for order_item
+-- ----------------------------
+DROP TABLE IF EXISTS `order_item`;
+CREATE TABLE `order_item` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `image_url` varchar(255) DEFAULT NULL,
+  `quantity` int(11) DEFAULT NULL,
+  `unit_price` decimal(19,2) DEFAULT NULL,
+  `order_id` bigint(20) DEFAULT NULL,
+  `product_id` bigint(20) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `K_order_id` (`order_id`),
+  KEY `FK_product_id` (`product_id`),
+  CONSTRAINT `FK_order_id` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`),
+  CONSTRAINT `FK_product_id` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+-- ----------------------------
+-- Records of order_item
+-- ----------------------------
+BEGIN;
+INSERT INTO `order_item` VALUES (1, 'assets/images/products/mousepads/mousepad-luv2code-1000.png', 1, 17.99, 1, 51);
+INSERT INTO `order_item` VALUES (2, 'assets/images/products/coffeemugs/coffeemug-luv2code-1000.png', 1, 18.99, 1, 26);
+INSERT INTO `order_item` VALUES (3, 'assets/img/products/coffeemugs/coffeemug-luv2code-1000.png', 1, 18.99, 2, 26);
+INSERT INTO `order_item` VALUES (4, 'assets/img/products/books/book-luv2code-1004.png', 1, 18.99, 2, 5);
+INSERT INTO `order_item` VALUES (5, 'assets/img/products/mousepads/mousepad-luv2code-1000.png', 1, 17.99, 2, 51);
+COMMIT;
+
+-- ----------------------------
+-- Table structure for orders
+-- ----------------------------
+DROP TABLE IF EXISTS `orders`;
+CREATE TABLE `orders` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `order_tracking_number` varchar(255) DEFAULT NULL,
+  `total_price` decimal(19,2) DEFAULT NULL,
+  `total_quantity` int(11) DEFAULT NULL,
+  `billing_address_id` bigint(20) DEFAULT NULL,
+  `customer_id` bigint(20) DEFAULT NULL,
+  `shipping_address_id` bigint(20) DEFAULT NULL,
+  `status` varchar(128) DEFAULT NULL,
+  `date_created` datetime(6) DEFAULT NULL,
+  `last_updated` datetime(6) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `UK_billing_address_id` (`billing_address_id`),
+  UNIQUE KEY `UK_shipping_address_id` (`shipping_address_id`),
+  KEY `K_customer_id` (`customer_id`),
+  CONSTRAINT `FK_billing_address_id` FOREIGN KEY (`billing_address_id`) REFERENCES `address` (`id`),
+  CONSTRAINT `FK_customer_id` FOREIGN KEY (`customer_id`) REFERENCES `customer` (`id`),
+  CONSTRAINT `FK_shipping_address_id` FOREIGN KEY (`shipping_address_id`) REFERENCES `address` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+-- ----------------------------
+-- Records of orders
+-- ----------------------------
+BEGIN;
+INSERT INTO `orders` VALUES (1, '60787c63-135d-4357-86bd-a774e392a066', 36.98, 2, 1, 1, 2, NULL, '2024-05-27 19:25:09.842000', '2024-05-27 19:25:09.842000');
+INSERT INTO `orders` VALUES (2, '0157ed64-1c45-4967-995d-80358c82a2ac', 55.97, 3, 3, 2, 4, NULL, '2024-05-28 15:41:15.254000', '2024-05-28 15:41:15.254000');
+COMMIT;
 
 -- ----------------------------
 -- Table structure for product
@@ -162,6 +291,280 @@ INSERT INTO `product_category` VALUES (1, 'Books');
 INSERT INTO `product_category` VALUES (2, 'Coffee Mugs');
 INSERT INTO `product_category` VALUES (3, 'Mouse Pads');
 INSERT INTO `product_category` VALUES (4, 'Luggage Tags');
+COMMIT;
+
+-- ----------------------------
+-- Table structure for state
+-- ----------------------------
+DROP TABLE IF EXISTS `state`;
+CREATE TABLE `state` (
+  `id` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) DEFAULT NULL,
+  `country_id` smallint(5) unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_country` (`country_id`),
+  CONSTRAINT `fk_country` FOREIGN KEY (`country_id`) REFERENCES `country` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=256 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+-- ----------------------------
+-- Records of state
+-- ----------------------------
+BEGIN;
+INSERT INTO `state` VALUES (1, 'Acre', 1);
+INSERT INTO `state` VALUES (2, 'Alagoas', 1);
+INSERT INTO `state` VALUES (3, 'Amapá', 1);
+INSERT INTO `state` VALUES (4, 'Amazonas', 1);
+INSERT INTO `state` VALUES (5, 'Bahia', 1);
+INSERT INTO `state` VALUES (6, 'Ceará', 1);
+INSERT INTO `state` VALUES (7, 'Distrito Federal', 1);
+INSERT INTO `state` VALUES (8, 'Espírito Santo', 1);
+INSERT INTO `state` VALUES (9, 'Goiás', 1);
+INSERT INTO `state` VALUES (10, 'Maranhão', 1);
+INSERT INTO `state` VALUES (11, 'Mato Grosso do Sul', 1);
+INSERT INTO `state` VALUES (12, 'Mato Grosso', 1);
+INSERT INTO `state` VALUES (13, 'Minas Gerais', 1);
+INSERT INTO `state` VALUES (14, 'Paraná', 1);
+INSERT INTO `state` VALUES (15, 'Paraíba', 1);
+INSERT INTO `state` VALUES (16, 'Pará', 1);
+INSERT INTO `state` VALUES (17, 'Pernambuco', 1);
+INSERT INTO `state` VALUES (18, 'Piaui', 1);
+INSERT INTO `state` VALUES (19, 'Rio de Janeiro', 1);
+INSERT INTO `state` VALUES (20, 'Rio Grande do Norte', 1);
+INSERT INTO `state` VALUES (21, 'Rio Grande do Sul', 1);
+INSERT INTO `state` VALUES (22, 'Rondônia', 1);
+INSERT INTO `state` VALUES (23, 'Roraima', 1);
+INSERT INTO `state` VALUES (24, 'Santa Catarina', 1);
+INSERT INTO `state` VALUES (25, 'Sergipe', 1);
+INSERT INTO `state` VALUES (26, 'São Paulo', 1);
+INSERT INTO `state` VALUES (27, 'Tocantins', 1);
+INSERT INTO `state` VALUES (28, 'Alberta', 2);
+INSERT INTO `state` VALUES (29, 'British Columbia', 2);
+INSERT INTO `state` VALUES (30, 'Manitoba', 2);
+INSERT INTO `state` VALUES (31, 'New Brunswick', 2);
+INSERT INTO `state` VALUES (32, 'Newfoundland and Labrador', 2);
+INSERT INTO `state` VALUES (33, 'Northwest Territories', 2);
+INSERT INTO `state` VALUES (34, 'Nova Scotia', 2);
+INSERT INTO `state` VALUES (35, 'Nunavut', 2);
+INSERT INTO `state` VALUES (36, 'Ontario', 2);
+INSERT INTO `state` VALUES (37, 'Prince Edward Island', 2);
+INSERT INTO `state` VALUES (38, 'Quebec', 2);
+INSERT INTO `state` VALUES (39, 'Saskatchewan', 2);
+INSERT INTO `state` VALUES (40, 'Yukon', 2);
+INSERT INTO `state` VALUES (41, 'Baden-Württemberg', 3);
+INSERT INTO `state` VALUES (42, 'Bavaria', 3);
+INSERT INTO `state` VALUES (43, 'Berlin', 3);
+INSERT INTO `state` VALUES (44, 'Brandenburg', 3);
+INSERT INTO `state` VALUES (45, 'Bremen', 3);
+INSERT INTO `state` VALUES (46, 'Hamburg', 3);
+INSERT INTO `state` VALUES (47, 'Hesse', 3);
+INSERT INTO `state` VALUES (48, 'Lower Saxony', 3);
+INSERT INTO `state` VALUES (49, 'Mecklenburg-Vorpommern', 3);
+INSERT INTO `state` VALUES (50, 'North Rhine-Westphalia', 3);
+INSERT INTO `state` VALUES (51, 'Rhineland-Palatinate', 3);
+INSERT INTO `state` VALUES (52, 'Saarland', 3);
+INSERT INTO `state` VALUES (53, 'Saxony', 3);
+INSERT INTO `state` VALUES (54, 'Saxony-Anhalt', 3);
+INSERT INTO `state` VALUES (55, 'Schleswig-Holstein', 3);
+INSERT INTO `state` VALUES (56, 'Thuringia', 3);
+INSERT INTO `state` VALUES (57, 'Andhra Pradesh', 4);
+INSERT INTO `state` VALUES (58, 'Arunachal Pradesh', 4);
+INSERT INTO `state` VALUES (59, 'Assam', 4);
+INSERT INTO `state` VALUES (60, 'Bihar', 4);
+INSERT INTO `state` VALUES (61, 'Chhattisgarh', 4);
+INSERT INTO `state` VALUES (62, 'Goa', 4);
+INSERT INTO `state` VALUES (63, 'Gujarat', 4);
+INSERT INTO `state` VALUES (64, 'Haryana', 4);
+INSERT INTO `state` VALUES (65, 'Himachal Pradesh', 4);
+INSERT INTO `state` VALUES (66, 'Jammu & Kashmir', 4);
+INSERT INTO `state` VALUES (67, 'Jharkhand', 4);
+INSERT INTO `state` VALUES (68, 'Karnataka', 4);
+INSERT INTO `state` VALUES (69, 'Kerala', 4);
+INSERT INTO `state` VALUES (70, 'Madhya Pradesh', 4);
+INSERT INTO `state` VALUES (71, 'Maharashtra', 4);
+INSERT INTO `state` VALUES (72, 'Manipur', 4);
+INSERT INTO `state` VALUES (73, 'Meghalaya', 4);
+INSERT INTO `state` VALUES (74, 'Mizoram', 4);
+INSERT INTO `state` VALUES (75, 'Nagaland', 4);
+INSERT INTO `state` VALUES (76, 'Odisha', 4);
+INSERT INTO `state` VALUES (77, 'Punjab', 4);
+INSERT INTO `state` VALUES (78, 'Rajasthan', 4);
+INSERT INTO `state` VALUES (79, 'Sikkim', 4);
+INSERT INTO `state` VALUES (80, 'Tamil Nadu', 4);
+INSERT INTO `state` VALUES (81, 'Telangana', 4);
+INSERT INTO `state` VALUES (82, 'Tripura', 4);
+INSERT INTO `state` VALUES (83, 'Uttar Pradesh', 4);
+INSERT INTO `state` VALUES (84, 'Uttarakhand', 4);
+INSERT INTO `state` VALUES (85, 'West Bengal', 4);
+INSERT INTO `state` VALUES (86, 'Andaman and Nicobar Islands', 4);
+INSERT INTO `state` VALUES (87, 'Chandigarh', 4);
+INSERT INTO `state` VALUES (88, 'Dadra and Nagar Haveli', 4);
+INSERT INTO `state` VALUES (89, 'Daman & Diu', 4);
+INSERT INTO `state` VALUES (90, 'Lakshadweep', 4);
+INSERT INTO `state` VALUES (91, 'Puducherry', 4);
+INSERT INTO `state` VALUES (92, 'The Government of NCT of Delhi', 4);
+INSERT INTO `state` VALUES (93, 'Alabama', 6);
+INSERT INTO `state` VALUES (94, 'Alaska', 6);
+INSERT INTO `state` VALUES (95, 'Arizona', 6);
+INSERT INTO `state` VALUES (96, 'Arkansas', 6);
+INSERT INTO `state` VALUES (97, 'California', 6);
+INSERT INTO `state` VALUES (98, 'Colorado', 6);
+INSERT INTO `state` VALUES (99, 'Connecticut', 6);
+INSERT INTO `state` VALUES (100, 'Delaware', 6);
+INSERT INTO `state` VALUES (101, 'District Of Columbia', 6);
+INSERT INTO `state` VALUES (102, 'Florida', 6);
+INSERT INTO `state` VALUES (103, 'Georgia', 6);
+INSERT INTO `state` VALUES (104, 'Hawaii', 6);
+INSERT INTO `state` VALUES (105, 'Idaho', 6);
+INSERT INTO `state` VALUES (106, 'Illinois', 6);
+INSERT INTO `state` VALUES (107, 'Indiana', 6);
+INSERT INTO `state` VALUES (108, 'Iowa', 6);
+INSERT INTO `state` VALUES (109, 'Kansas', 6);
+INSERT INTO `state` VALUES (110, 'Kentucky', 6);
+INSERT INTO `state` VALUES (111, 'Louisiana', 6);
+INSERT INTO `state` VALUES (112, 'Maine', 6);
+INSERT INTO `state` VALUES (113, 'Maryland', 6);
+INSERT INTO `state` VALUES (114, 'Massachusetts', 6);
+INSERT INTO `state` VALUES (115, 'Michigan', 6);
+INSERT INTO `state` VALUES (116, 'Minnesota', 6);
+INSERT INTO `state` VALUES (117, 'Mississippi', 6);
+INSERT INTO `state` VALUES (118, 'Missouri', 6);
+INSERT INTO `state` VALUES (119, 'Montana', 6);
+INSERT INTO `state` VALUES (120, 'Nebraska', 6);
+INSERT INTO `state` VALUES (121, 'Nevada', 6);
+INSERT INTO `state` VALUES (122, 'New Hampshire', 6);
+INSERT INTO `state` VALUES (123, 'New Jersey', 6);
+INSERT INTO `state` VALUES (124, 'New Mexico', 6);
+INSERT INTO `state` VALUES (125, 'New York', 6);
+INSERT INTO `state` VALUES (126, 'North Carolina', 6);
+INSERT INTO `state` VALUES (127, 'North Dakota', 6);
+INSERT INTO `state` VALUES (128, 'Ohio', 6);
+INSERT INTO `state` VALUES (129, 'Oklahoma', 6);
+INSERT INTO `state` VALUES (130, 'Oregon', 6);
+INSERT INTO `state` VALUES (131, 'Pennsylvania', 6);
+INSERT INTO `state` VALUES (132, 'Rhode Island', 6);
+INSERT INTO `state` VALUES (133, 'South Carolina', 6);
+INSERT INTO `state` VALUES (134, 'South Dakota', 6);
+INSERT INTO `state` VALUES (135, 'Tennessee', 6);
+INSERT INTO `state` VALUES (136, 'Texas', 6);
+INSERT INTO `state` VALUES (137, 'Utah', 6);
+INSERT INTO `state` VALUES (138, 'Vermont', 6);
+INSERT INTO `state` VALUES (139, 'Virginia', 6);
+INSERT INTO `state` VALUES (140, 'Washington', 6);
+INSERT INTO `state` VALUES (141, 'West Virginia', 6);
+INSERT INTO `state` VALUES (142, 'Wisconsin', 6);
+INSERT INTO `state` VALUES (143, 'Wyoming', 6);
+INSERT INTO `state` VALUES (144, 'Adıyaman', 5);
+INSERT INTO `state` VALUES (145, 'Afyonkarahisar', 5);
+INSERT INTO `state` VALUES (146, 'Ağrı', 5);
+INSERT INTO `state` VALUES (147, 'Aksaray', 5);
+INSERT INTO `state` VALUES (148, 'Amasya', 5);
+INSERT INTO `state` VALUES (149, 'Ankara', 5);
+INSERT INTO `state` VALUES (150, 'Antalya', 5);
+INSERT INTO `state` VALUES (151, 'Ardahan', 5);
+INSERT INTO `state` VALUES (152, 'Artvin', 5);
+INSERT INTO `state` VALUES (153, 'Aydın', 5);
+INSERT INTO `state` VALUES (154, 'Balıkesir', 5);
+INSERT INTO `state` VALUES (155, 'Bartın', 5);
+INSERT INTO `state` VALUES (156, 'Batman', 5);
+INSERT INTO `state` VALUES (157, 'Bayburt', 5);
+INSERT INTO `state` VALUES (158, 'Bilecik', 5);
+INSERT INTO `state` VALUES (159, 'Bingöl', 5);
+INSERT INTO `state` VALUES (160, 'Bitlis', 5);
+INSERT INTO `state` VALUES (161, 'Bolu', 5);
+INSERT INTO `state` VALUES (162, 'Burdur', 5);
+INSERT INTO `state` VALUES (163, 'Bursa', 5);
+INSERT INTO `state` VALUES (164, 'Çanakkale', 5);
+INSERT INTO `state` VALUES (165, 'Çankırı', 5);
+INSERT INTO `state` VALUES (166, 'Çorum', 5);
+INSERT INTO `state` VALUES (167, 'Denizli', 5);
+INSERT INTO `state` VALUES (168, 'Diyarbakır', 5);
+INSERT INTO `state` VALUES (169, 'Düzce', 5);
+INSERT INTO `state` VALUES (170, 'Edirne', 5);
+INSERT INTO `state` VALUES (171, 'Elazığ', 5);
+INSERT INTO `state` VALUES (172, 'Erzincan', 5);
+INSERT INTO `state` VALUES (173, 'Erzurum', 5);
+INSERT INTO `state` VALUES (174, 'Eskişehir', 5);
+INSERT INTO `state` VALUES (175, 'Gaziantep', 5);
+INSERT INTO `state` VALUES (176, 'Giresun', 5);
+INSERT INTO `state` VALUES (177, 'Gümüşhane', 5);
+INSERT INTO `state` VALUES (178, 'Hakkâri', 5);
+INSERT INTO `state` VALUES (179, 'Hatay', 5);
+INSERT INTO `state` VALUES (180, 'Iğdır', 5);
+INSERT INTO `state` VALUES (181, 'Isparta', 5);
+INSERT INTO `state` VALUES (182, 'İstanbul', 5);
+INSERT INTO `state` VALUES (183, 'İzmir', 5);
+INSERT INTO `state` VALUES (184, 'Kahramanmaraş', 5);
+INSERT INTO `state` VALUES (185, 'Karabük', 5);
+INSERT INTO `state` VALUES (186, 'Karaman', 5);
+INSERT INTO `state` VALUES (187, 'Kars', 5);
+INSERT INTO `state` VALUES (188, 'Kastamonu', 5);
+INSERT INTO `state` VALUES (189, 'Kayseri', 5);
+INSERT INTO `state` VALUES (190, 'Kırıkkale', 5);
+INSERT INTO `state` VALUES (191, 'Kırklareli', 5);
+INSERT INTO `state` VALUES (192, 'Kırşehir', 5);
+INSERT INTO `state` VALUES (193, 'Kilis', 5);
+INSERT INTO `state` VALUES (194, 'Kocaeli', 5);
+INSERT INTO `state` VALUES (195, 'Konya', 5);
+INSERT INTO `state` VALUES (196, 'Kütahya', 5);
+INSERT INTO `state` VALUES (197, 'Malatya', 5);
+INSERT INTO `state` VALUES (198, 'Manisa', 5);
+INSERT INTO `state` VALUES (199, 'Mardin', 5);
+INSERT INTO `state` VALUES (200, 'Mersin', 5);
+INSERT INTO `state` VALUES (201, 'Muğla', 5);
+INSERT INTO `state` VALUES (202, 'Muş', 5);
+INSERT INTO `state` VALUES (203, 'Nevşehir', 5);
+INSERT INTO `state` VALUES (204, 'Niğde', 5);
+INSERT INTO `state` VALUES (205, 'Ordu', 5);
+INSERT INTO `state` VALUES (206, 'Osmaniye', 5);
+INSERT INTO `state` VALUES (207, 'Rize', 5);
+INSERT INTO `state` VALUES (208, 'Sakarya', 5);
+INSERT INTO `state` VALUES (209, 'Samsun', 5);
+INSERT INTO `state` VALUES (210, 'Siirt', 5);
+INSERT INTO `state` VALUES (211, 'Sinop', 5);
+INSERT INTO `state` VALUES (212, 'Sivas', 5);
+INSERT INTO `state` VALUES (213, 'Şanlıurfa', 5);
+INSERT INTO `state` VALUES (214, 'Şırnak', 5);
+INSERT INTO `state` VALUES (215, 'Tekirdağ', 5);
+INSERT INTO `state` VALUES (216, 'Tokat', 5);
+INSERT INTO `state` VALUES (217, 'Trabzon', 5);
+INSERT INTO `state` VALUES (218, 'Tunceli', 5);
+INSERT INTO `state` VALUES (219, 'Uşak', 5);
+INSERT INTO `state` VALUES (220, 'Van', 5);
+INSERT INTO `state` VALUES (221, 'Yalova', 5);
+INSERT INTO `state` VALUES (222, 'Yozgat', 5);
+INSERT INTO `state` VALUES (223, 'Zonguldak', 5);
+INSERT INTO `state` VALUES (224, 'Aguascalientes', 7);
+INSERT INTO `state` VALUES (225, 'Baja California', 7);
+INSERT INTO `state` VALUES (226, 'Baja California Sur', 7);
+INSERT INTO `state` VALUES (227, 'Campeche', 7);
+INSERT INTO `state` VALUES (228, 'Chiapas', 7);
+INSERT INTO `state` VALUES (229, 'Chihuahua', 7);
+INSERT INTO `state` VALUES (230, 'Ciudad de México', 7);
+INSERT INTO `state` VALUES (231, 'Coahuila', 7);
+INSERT INTO `state` VALUES (232, 'Colima', 7);
+INSERT INTO `state` VALUES (233, 'Durango', 7);
+INSERT INTO `state` VALUES (234, 'Estado de México', 7);
+INSERT INTO `state` VALUES (235, 'Guanajuato', 7);
+INSERT INTO `state` VALUES (236, 'Guerrero', 7);
+INSERT INTO `state` VALUES (237, 'Hidalgo', 7);
+INSERT INTO `state` VALUES (238, 'Jalisco', 7);
+INSERT INTO `state` VALUES (239, 'Michoacán', 7);
+INSERT INTO `state` VALUES (240, 'Morelos', 7);
+INSERT INTO `state` VALUES (241, 'Nayarit', 7);
+INSERT INTO `state` VALUES (242, 'Nuevo León', 7);
+INSERT INTO `state` VALUES (243, 'Oaxaca', 7);
+INSERT INTO `state` VALUES (244, 'Puebla', 7);
+INSERT INTO `state` VALUES (245, 'Querétaro', 7);
+INSERT INTO `state` VALUES (246, 'Quintana Roo', 7);
+INSERT INTO `state` VALUES (247, 'San Luis Potosí', 7);
+INSERT INTO `state` VALUES (248, 'Sinaloa', 7);
+INSERT INTO `state` VALUES (249, 'Sonora', 7);
+INSERT INTO `state` VALUES (250, 'Tabasco', 7);
+INSERT INTO `state` VALUES (251, 'Tamaulipas', 7);
+INSERT INTO `state` VALUES (252, 'Tlaxcala', 7);
+INSERT INTO `state` VALUES (253, 'Veracruz', 7);
+INSERT INTO `state` VALUES (254, 'Yucatán', 7);
+INSERT INTO `state` VALUES (255, 'Zacatecas', 7);
 COMMIT;
 
 SET FOREIGN_KEY_CHECKS = 1;
